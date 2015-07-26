@@ -54,33 +54,131 @@ db.open()
     .catch(function(error){
         alert('Uh oh : ' + error);
     });
-    
 
 
-var get_fighter_info = function(fighter_name) {
-    var fighter = {};
-    
+//var fighter1 = get_fighter_info('Tyrion');
+//var fighter2 = get_fighter_info('Tywin');
+
+get_fighter_info('Tyrion', function(fighter1) {
+    console.log(fighter1);
+});
+
+
+
+
+//var matchup = get_matchup({player1:fighter1, player2:fighter2});
+
+
+function get_fighter_info(fighter_name, cb) {
+
+    var fighter = {
+        'empty': true
+    };
+
     // Retrieve fighter from databae
     db.fighters
         .where('name')
         .equals(fighter_name)
         .each(function(result) {
-           fighter = result;
-           return;
+            console.log(fighter.empty);
+            console.log('Found fighter: ' + fighter_name);
+            fighter = result;
+        })
+        .then(function() {
+            if (fighter.empty) {
+                delete fighter.empty;
+                fighter.name = fighter_name;
+                fighter = add_new_fighter(fighter);
+            }
+        })
+        .then(function() {
+            console.log('this part!');
+
+            // Get data on thi fighter's matchups
+            fighter.matchups = [];
+            db.matchups
+                .where('player1')
+                .equals('fighter_name')
+                .or('player2')
+                .equals('fighter_name')
+                .each(function(matchup) {
+                    fighter.matchups.push(matchup);
+                });
+                
+            // Callback
+            cb(fighter);
         });
-    
-    // Get data on thi fighter's matchups
-    fighter.matchups = [];    
-    db.matchups
-        .where('player1')
-        .equals('fighter_name')
-        .or('player2')
-        .equals('fighter_name')
-        .each(function(matchup) {
-            fighter.matchups.push(matchup);
-        });
+}
+
+function add_new_fighter(fighter) {
+    console.log('adding fighter! ' + fighter.name);
+    db.fighters
+        .add(fighter);
 
     return fighter;
 }
 
+function sort_fighters(obj) {
 
+    if (   !obj.hasOwnProperty('player1')
+        || !obj.hasOwnProperty('player2'))
+    {
+        return;
+    }
+
+    // Force alphabetical order for fighter names so we don't get
+    // duplicate entries where A,B and B,A are separate
+    var sorted_fighters = [obj.player1, obj.player2].sort();
+    obj.player1 = sorted_fighters[0];
+    obj.player2 = sorted_fighters[1];
+}
+
+function get_current_date() {
+    return new Date().toJSON().slice(0,10);
+}
+
+// Input: {player1, player2, winner, p1_wager, p2_wager, our_bet, our_wager}
+function add_fight(fight) {
+
+    sort_fighters(fight);
+
+    fight.added = get_current_date();
+
+    db.fights
+        .add(fight);
+
+    update_matchup(fight);
+    return fight;
+}
+
+function update_matchup(fight) {
+    var matchup = matchup(fight);
+    // TODO: update matchup statistics
+}
+
+function get_matchup(matchup) {
+    matchup.empty = true;
+
+    sort_fighters(matchup);
+
+    db.matchups
+        .where('player1')
+        .equals(matchup.player1)
+        .and('player2')
+        .equals(matchup.player2)
+        .each(function(result) {
+            matchup = result;
+        });
+
+    if (matchup.empty) {
+        delete matchup.empty;
+        matchup.first_encountered = get_current_date();
+        add_matchup(matchup);
+    }
+
+    return matchup;
+}
+
+function add_matchup(matchup) {
+    console.log('Adding matchup! ' + matchup.player1 + ' :: ' + matchup.player2);
+}
