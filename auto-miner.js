@@ -6,6 +6,7 @@
 // @author       DonSequitur
 // @match        http://www.saltybet.com/*
 // @require      https://code.jquery.com/jquery-1.11.3.js
+// @require      https://cdn.rawgit.com/dfahlander/Dexie.js/master/dist/latest/Dexie.min.js
 // @grant        none
 // ==/UserScript==
 
@@ -36,7 +37,7 @@
                 console.log('Betting 10%!');
                 setTimeout(function(){
                     simulateClick('player1');
-                    console.log('Betting on red!'); w
+                    console.log('Betting on red!');
                 }, rand1);
             }, rand2);
 
