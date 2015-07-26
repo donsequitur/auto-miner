@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         auto-miner
+// @name         Auto Miner
 // @namespace    https://github.com/donsequitur/
-// @version      0.3
+// @version      0.4
 // @description  Place bets automatically on Salty Bet
 // @author       DonSequitur
 // @downloadURL  https://cdn.rawgit.com/donsequitur/auto-miner/master/auto-miner.user.js
