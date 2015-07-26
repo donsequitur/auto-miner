@@ -1,9 +1,10 @@
 // ==UserScript==
-// @name         Auto Salt
-// @namespace    http://your.homepage/
-// @version      0.1
+// @name         Auto Miner
+// @namespace    https://github.com/donsequitur/auto-miner
+// @version      0.2
 // @description  Place bets automatically on Salty Bet
 // @author       DonSequitur
+// @downloadURL  https://cdn.rawgit.com/donsequitur/auto-miner/master/auto-miner.js
 // @match        http://www.saltybet.com/*
 // @require      https://code.jquery.com/jquery-1.11.3.js
 // @require      https://cdn.rawgit.com/dfahlander/Dexie.js/master/dist/latest/Dexie.min.js
