@@ -8,177 +8,196 @@
 // @icon         https://cdn.rawgit.com/donsequitur/auto-miner/master/fat_illuminati.png
 // @match        http://www.saltybet.com/*
 // @require      https://code.jquery.com/jquery-1.11.3.js
-// @require      https://rawgit.com/dfahlander/Dexie.js/master/dist/latest/Dexie.min.js
+// @require      https://rawgit.com/knadh/localStorageDB/v2.3.1/localstoragedb.js
 // @grant        none
 // ==/UserScript==
 
 console.log("Let's get salty!");
 
+var db = new localStorageDB("salt", localStorage);
 
-/*
-|---------------------------------------------
-| Make a database connection
-|---------------------------------------------
-*/
+if( db.isNew() ) {
+    db.createTable("Fighter", [
+        "name",
+        "matches",
+        "wins",
+        "first_encountered",
+        "last_encountered",
+        "amount_wagered",
+        "amount_won",
+        "bets_made",
+        "bets_won"
+    ]);
 
-var db = new Dexie('Salt');
-
-
-// Define a schema
-// Fighters:
-//   Desc: Collected info about each known fighter
-//   Columns: name, wins, fights
-//
-// Matchups:
-//   Desc: Information about fighter matchups seen. Aggregate of Fights
-//   Columns: ++id, player1, player2, matches_seen, player1_wins, player2_wins
-//
-// Fights:
-//   Desc: Information collected form each fight
-//   Columns: ++id, player1, player2, winner, player1_wagered, player2_wagered, our_bet, our_wager
-//
-// Meta:
-//   Desc: Metadata on how script is doing
-//   Columns: amount_won, bets_made
-db.version(1)
-    .stores({
-        fighters: 'name',
-        matchups: 'player1, player2, [player1+player2]',
-        fights: '',
-        meta: ''
-    });
+    db.createTable("Matchup", [
+        "fighterA",
+        "fighterB",
+        "first_encountered",
+        "last_encountered",
+        "times_encountered",
+        "fighterA_wins",
+        "fighterB_wins",
+        "fighterA_wagers",
+        "fighterB_wagers",
+        "our_fighterA_bets",
+        "our_fighterB_bets",
+        "our_fighterA_wins",
+        "our_fighterB_wins"
+    ]);
 
 
-// Open the database
-db.open()
-    .catch(function(error){
-        alert('Uh oh : ' + error);
-    });
+    db.createTable("Fight", [
+        "fighterA",
+        "fighterB",
+        "time",
+        "winner",
+        "fighterA_wagers",
+        "fighterB_wagers",
+        "our_bet",
+        "our_wager"
+    ]);
 
-
-//var fighter1 = get_fighter_info('Tyrion');
-//var fighter2 = get_fighter_info('Tywin');
-
-get_fighter_info('Tyrion', function(fighter1) {
-    console.log(fighter1);
-});
-
-
-
-
-//var matchup = get_matchup({player1:fighter1, player2:fighter2});
-
-
-function get_fighter_info(fighter_name, cb) {
-
-    var fighter = {
-        'empty': true
-    };
-
-    // Retrieve fighter from databae
-    db.fighters
-        .where('name')
-        .equals(fighter_name)
-        .each(function(result) {
-            console.log(fighter.empty);
-            console.log('Found fighter: ' + fighter_name);
-            fighter = result;
-        })
-        .then(function() {
-            if (fighter.empty) {
-                delete fighter.empty;
-                fighter.name = fighter_name;
-                fighter = add_new_fighter(fighter);
-            }
-        })
-        .then(function() {
-            console.log('this part!');
-
-            // Get data on thi fighter's matchups
-            fighter.matchups = [];
-            db.matchups
-                .where('player1')
-                .equals('fighter_name')
-                .or('player2')
-                .equals('fighter_name')
-                .each(function(matchup) {
-                    fighter.matchups.push(matchup);
-                });
-                
-            // Callback
-            cb(fighter);
-        });
+    db.commit();
 }
 
-function add_new_fighter(fighter) {
-    console.log('adding fighter! ' + fighter.name);
-    db.fighters
-        .add(fighter);
+var current_fight = {};
+wait_for_bets_to_start();
 
-    return fighter;
-}
 
-function sort_fighters(obj) {
+// Bets are locked until the next match.
+function wait_for_match_to_start(fighterA, fighterB, matchup) {
+    var bets_are_locked = /Bets are locked until the next match\./;
+    var status = $('betstatus').innerHTML;
 
-    if (   !obj.hasOwnProperty('player1')
-        || !obj.hasOwnProperty('player2'))
-    {
-        return;
+    if(status.test(bets_are_locked)) {
+        console.log('Match Started!');
+        wait_for_match_to_end(fighterA, fighterB, matchup);
     }
-
-    // Force alphabetical order for fighter names so we don't get
-    // duplicate entries where A,B and B,A are separate
-    var sorted_fighters = [obj.player1, obj.player2].sort();
-    obj.player1 = sorted_fighters[0];
-    obj.player2 = sorted_fighters[1];
-}
-
-function get_current_date() {
-    return new Date().toJSON().slice(0,10);
-}
-
-// Input: {player1, player2, winner, p1_wager, p2_wager, our_bet, our_wager}
-function add_fight(fight) {
-
-    sort_fighters(fight);
-
-    fight.added = get_current_date();
-
-    db.fights
-        .add(fight);
-
-    update_matchup(fight);
-    return fight;
-}
-
-function update_matchup(fight) {
-    var matchup = matchup(fight);
-    // TODO: update matchup statistics
-}
-
-function get_matchup(matchup) {
-    matchup.empty = true;
-
-    sort_fighters(matchup);
-
-    db.matchups
-        .where('player1')
-        .equals(matchup.player1)
-        .and('player2')
-        .equals(matchup.player2)
-        .each(function(result) {
-            matchup = result;
-        });
-
-    if (matchup.empty) {
-        delete matchup.empty;
-        matchup.first_encountered = get_current_date();
-        add_matchup(matchup);
+    else {
+        setTimeout(wait_for_match_to_start(),1000);
     }
-
-    return matchup;
 }
 
-function add_matchup(matchup) {
-    console.log('Adding matchup! ' + matchup.player1 + ' :: ' + matchup.player2);
+// Igniz scarlet wins! Payouts to Team Red.
+function wait_for_match_to_end(fighterA, fighterB, matchup) {
+    var winner_declared = /(.*?) wins! Payouts to Team (Blue|Red)\./;
+    var status = $('betstatus').innerHTML;
+
+    if (var matches = status.match(winner_declared)) {
+        var winner = matches[0];
+        var winning_color = matches[1];
+        console.log('Match ended! Winner was ' + winner + ' (' + winning_color + ')');
+        wait_for_bets_to_start();
+
+    }
+    else {
+        setTimeout(wait_for_match_to_end(),1000);
+    }
 }
+
+
+// Bets are OPEN!
+function wait_for_bets_to_start() {
+    var betting_open = /Bets are OPEN!/;
+    var status = $('betstatus').innerHTML;
+
+    if (status.test(betting_open)) {
+        console.log('Now accepting bets!');
+        // var fighter1 = $('player1').innerHTML;
+        // var fighter2 = $('player2').innerHTML;
+
+        // var sorted_fighters = [player1, player2];
+        // var fighterA = get_fighter(sorted_fighters[0]);
+        // var fighterB = get_fighter(sorted_fighters[1]);
+        // var matchup = get_matchup(fighterA.name, fighterB.name);
+        
+        // var bet;
+        // var confidence;
+        // if (matchup.fighterA_wins > matchup.fighterB_wins) {
+        //     fight.our_bet = 
+        // }
+        
+        // place_bet(bet, matchup, wager);
+        wait_for_match_to_start(fighterA, fighterB, matchup);
+    }
+    else {
+        setTimeout(wait_for_bets_to_start(), 1000);
+    }
+}
+
+// function get_fighter(fighter_name) {
+//     var fighter = db.queryAll("Fighter", {
+//         query: {name: contestant}
+//     })[0];
+
+//     if (!fighter) {
+//         var id = db.insert("Fighter", {
+//             name: fighter_name
+//             matches: 1,
+//             wins: 0,
+//             first_encountered: new Date();
+//             last_encountered: new Date();
+//             amount_wagered: 0;
+//             amount_won: 0,
+//             bets_made: 0,
+//             bets_won: 0
+//         });
+//         fighter = db.queryAll("Fighter",{id: id});
+//     }
+//     else {
+//         fighter.matches++;
+//         fighter.last_encountered = new Date();
+//     }
+
+//     return fighter;
+// }
+
+// function get_matchup(fighterA_name, fighterB_name) {
+//     var matchup = db.queryAll("Matchup", {
+//         query: {
+//             fighterA: fighterA_name,
+//             fighterB: fighterB_name
+//         }
+//     })[0];
+
+//     if (!matchup) {
+//         var id = db.insert("Matchup", {
+//             fighterA: fighterA_name,
+//             fighterB: fighterB_name,
+//             times_encountered: 1,
+//             first_encountered: new Date(),
+//             last_encountered: new Date(),
+//             fighterA_wins: 0,
+//             fighterB_wins: 0,
+//             fighterA_wagers: 0,
+//             fighterB_wagers: 0,
+//             our_fighterA_bets: 0,
+//             our_fighterB_bets: 0,
+//             our_fighterA_wins: 0,
+//             our_fighterB_wins: 0
+//         });
+//         matchup = db.queryAll("Matchup",{id: id});
+//     }
+//     else {
+//         matchup.times_encountered++;
+//         matchup.last_encountered = new Date();
+//     }
+
+//     return matchup;
+// }
+
+// function place_bet(fighter, matchup, our_wager) {
+//     fighter.bets_made++;
+//     fighter.amount_wagered += our_wager;
+//     var our_fighter;
+//     if (matchup.fighterA == fighter.name) {
+//         our_fighter = 'fighterA';
+//     }
+//     else {
+//         our_fighter = 'fighterB';
+//     }
+    
+//     matchup['our_' + our_fighter + '_bets']++;
+//     matchup['our_' + our_fighter + '_wagers']+= our_wager;
+//     return;
+// }
