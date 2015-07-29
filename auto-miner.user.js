@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Auto Miner
 // @namespace    https://github.com/donsequitur/
-// @version      0.
+// @version      0.8
 // @description  Place bets automatically on Salty Bet
 // @author       DonSequitur
 // @downloadURL  https://github.com/donsequitur/auto-miner/raw/master/auto-miner.user.js
@@ -86,8 +86,8 @@ function wait_for_match_to_start(fighterA, fighterB, matchup) {
                 matchup.fighterA_wagers += second_wager.replace(/[\$\,]/, '');
                 matchup.fighterB_wagers += first_wager.replace(/[\$\,]/, '');
             }
-            console.log("Community thinks " + fighterA.name 
-              + " will win. Betting $" + matchup.fighterA_wagers 
+            console.log("Community thinks " + fighterA.name
+              + " will win. Betting $" + matchup.fighterA_wagers
               + " over $" + matchup.fighterB_wagers + " for " + fighterB.name);
         }
         wait_for_match_to_end(fighterA, fighterB, matchup);
@@ -137,7 +137,7 @@ function wait_for_bets_to_start() {
         var matchup = {};
         //var fighterA = get_fighter(sorted_fighters[0]);
         //var fighterB = get_fighter(sorted_fighters[1]);
-        
+
         // var matchup = get_matchup(fighterA.name, fighterB.name);
 
         // var bet;
