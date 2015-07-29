@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Auto Miner
 // @namespace    https://github.com/donsequitur/
-// @version      0.5
+// @version      0.6
 // @description  Place bets automatically on Salty Bet
 // @author       DonSequitur
 // @downloadURL  https://github.com/donsequitur/auto-miner/raw/master/auto-miner.user.js
@@ -67,31 +67,35 @@ wait_for_bets_to_start();
 // Bets are locked until the next match.
 function wait_for_match_to_start(fighterA, fighterB, matchup) {
     var bets_are_locked = /Bets are locked until the next match\./;
-    var status = $('betstatus').innerHTML;
+    var status = $('#betstatus')[0].innerHTML;
+    status = status || 'COULD NOT FIND';
 
-    if(status.test(bets_are_locked)) {
+    if(bets_are_locked.test(status)) {
         console.log('Match Started!');
         wait_for_match_to_end(fighterA, fighterB, matchup);
     }
     else {
-        setTimeout(wait_for_match_to_start(),1000);
+        setTimeout(wait_for_match_to_start,1000);
+        return;
     }
 }
 
 // Igniz scarlet wins! Payouts to Team Red.
 function wait_for_match_to_end(fighterA, fighterB, matchup) {
     var winner_declared = /(.*?) wins! Payouts to Team (Blue|Red)\./;
-    var status = $('betstatus').innerHTML;
+    var status = $('#betstatus')[0].innerHTML;
+    status = status || 'COULD NOT FIND';
 
-    if (var matches = status.match(winner_declared)) {
-        var winner = matches[0];
-        var winning_color = matches[1];
+    var matches = status.match(winner_declared);
+    if (matches) {
+        var winner = matches[1];
+        var winning_color = matches[2];
         console.log('Match ended! Winner was ' + winner + ' (' + winning_color + ')');
         wait_for_bets_to_start();
 
     }
     else {
-        setTimeout(wait_for_match_to_end(),1000);
+        setTimeout(wait_for_match_to_end,1000);
     }
 }
 
@@ -99,29 +103,34 @@ function wait_for_match_to_end(fighterA, fighterB, matchup) {
 // Bets are OPEN!
 function wait_for_bets_to_start() {
     var betting_open = /Bets are OPEN!/;
-    var status = $('betstatus').innerHTML;
+    var status = $('#betstatus')[0].innerHTML;
+    status = status || 'COULD NOT FIND';
 
-    if (status.test(betting_open)) {
+    if (betting_open.test(status)) {
         console.log('Now accepting bets!');
-        // var fighter1 = $('player1').innerHTML;
-        // var fighter2 = $('player2').innerHTML;
+        var fighter1 = $('player1').innerHTML;
+        var fighter2 = $('player2').innerHTML;
 
-        // var sorted_fighters = [player1, player2];
-        // var fighterA = get_fighter(sorted_fighters[0]);
-        // var fighterB = get_fighter(sorted_fighters[1]);
-        // var matchup = get_matchup(fighterA.name, fighterB.name);
+        var sorted_fighters = [fighter1, fighter2];
+        var fighterA = sorted_fighters[0];
+        var fighterB = sorted_fighters[1];
+        var matchup = {};
+        //var fighterA = get_fighter(sorted_fighters[0]);
+        //var fighterB = get_fighter(sorted_fighters[1]);
         
+        // var matchup = get_matchup(fighterA.name, fighterB.name);
+
         // var bet;
         // var confidence;
         // if (matchup.fighterA_wins > matchup.fighterB_wins) {
-        //     fight.our_bet = 
+        //     fight.our_bet =
         // }
-        
+
         // place_bet(bet, matchup, wager);
         wait_for_match_to_start(fighterA, fighterB, matchup);
     }
     else {
-        setTimeout(wait_for_bets_to_start(), 1000);
+        setTimeout(wait_for_bets_to_start, 1000);
     }
 }
 
@@ -196,7 +205,7 @@ function wait_for_bets_to_start() {
 //     else {
 //         our_fighter = 'fighterB';
 //     }
-    
+
 //     matchup['our_' + our_fighter + '_bets']++;
 //     matchup['our_' + our_fighter + '_wagers']+= our_wager;
 //     return;
