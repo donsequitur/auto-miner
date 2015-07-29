@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Auto Miner
 // @namespace    https://github.com/donsequitur/
-// @version      0.7
+// @version      0.
 // @description  Place bets automatically on Salty Bet
 // @author       DonSequitur
 // @downloadURL  https://github.com/donsequitur/auto-miner/raw/master/auto-miner.user.js
@@ -72,6 +72,24 @@ function wait_for_match_to_start(fighterA, fighterB, matchup) {
 
     if(bets_are_locked.test(status)) {
         console.log('Match Started!');
+        var odds = $('#odds')[0].innerText;
+        var odds_pattern = /(.*?)\s+([\$\,\d]+)\xA0+(.*?)\s+([\$\,\d]+)/;
+        var matches = odds.match(odds_pattern);
+        if (matches) {
+            var first_wager = matches[2];
+            var second_wager = matches[4];
+            if (matches[1] == fighterA.name) {
+                matchup.fighterA_wagers += first_wager.replace(/[\$\,]/, '');
+                matchup.fighterB_wagers += second_wager.replace(/[\$\,]/, '');
+            }
+            else {
+                matchup.fighterA_wagers += second_wager.replace(/[\$\,]/, '');
+                matchup.fighterB_wagers += first_wager.replace(/[\$\,]/, '');
+            }
+            console.log("Community thinks " + fighterA.name 
+              + " will win. Betting $" + matchup.fighterA_wagers 
+              + " over $" + matchup.fighterB_wagers + " for " + fighterB.name);
+        }
         wait_for_match_to_end(fighterA, fighterB, matchup);
     }
     else {
@@ -114,8 +132,8 @@ function wait_for_bets_to_start() {
         var fighter2 = $('player2').innerHTML;
 
         var sorted_fighters = [fighter1, fighter2];
-        var fighterA = sorted_fighters[0];
-        var fighterB = sorted_fighters[1];
+        var fighterA = {name: sorted_fighters[0]};
+        var fighterB = {name: sorted_fighters[1]};
         var matchup = {};
         //var fighterA = get_fighter(sorted_fighters[0]);
         //var fighterB = get_fighter(sorted_fighters[1]);
