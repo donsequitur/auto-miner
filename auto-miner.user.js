@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Auto Miner
 // @namespace    https://github.com/donsequitur/
-// @version      0.6
+// @version      0.7
 // @description  Place bets automatically on Salty Bet
 // @author       DonSequitur
 // @downloadURL  https://github.com/donsequitur/auto-miner/raw/master/auto-miner.user.js
@@ -106,8 +106,10 @@ function wait_for_bets_to_start() {
     var status = $('#betstatus')[0].innerHTML;
     status = status || 'COULD NOT FIND';
 
+
     if (betting_open.test(status)) {
-        console.log('Now accepting bets!');
+        var balance = $('#balance')[0].innerHTML;
+        console.log('Now accepting bets! We have $' + balance + 'Salty Bucks to spend.');
         var fighter1 = $('player1').innerHTML;
         var fighter2 = $('player2').innerHTML;
 
