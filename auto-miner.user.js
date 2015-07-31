@@ -142,7 +142,7 @@ function wait_for_bets_to_start() {
 
         fighter1 = get_fighter(fighter1);
         fighter2 = get_fighter(fighter2);
-        say(fighter1.name + ' (' + fighter1.elo + ') vs. ' + fighter2.name + ' (' + fighter2.elo + ')');
+        say("Match #" + meta.seen + ': ' + fighter1.name + ' (' + fighter1.elo + ') vs. ' + fighter2.name + ' (' + fighter2.elo + ')');
 
         get_odds(fighter1, fighter2);
         place_bet(fighter1, fighter2);
@@ -233,14 +233,14 @@ function place_bet(fighter1, fighter2) {
     }
 
     if (fighter1.odds > fighter2.odds) {
-        say("I think " + fighter1.name + " will win with a " + (fighter1.odds * 100) + "% probability");
+        say("I think " + fighter1.name + " will win with a " + (Math.round(fighter1.odds * 10000) / 100) + "% probability");
         say("Betting " + interval + "0% on " + fighter1.name);
         $('#interval' + interval).click();
         $('#player1').click();
         fighter1.bets_made++
     }
     else if (fighter2.odds > fighter1.odds) {
-        say("I think " + fighter2.name + " will win with a " + (fighter2.odds * 100) + "% probability");
+        say("I think " + fighter2.name + " will win with a " + (Math.round(fighter2.odds * 10000) / 100) + "% probability");
         say("Betting " + interval + "0% on " + fighter2.name);
         $('#interval' + interval).click();
         $('#player2').click();
