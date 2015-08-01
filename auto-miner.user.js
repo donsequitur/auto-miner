@@ -201,15 +201,18 @@ function store_results(fighter1, fighter2, winner) {
         fighter1.bets_won++;
         fighter1.elo = Math.round(fighter1.elo + (30 * (1 - fighter1.odds)));
         fighter2.elo = Math.round(fighter2.elo + (30 * (0 - fighter1.odds)));
+        say(fighter1.name + "(winner) new rating: " + fighter1.elo);
+        say(fighter2.name + "(loser) new rating: " + fighter2.elo);
     }
     else {
         fighter2.wins++;
         fighter2.bets_won++;
         fighter2.elo = Math.round(fighter2.elo + (30 * (1 - fighter2.odds)));
         fighter1.elo = Math.round(fighter1.elo + (30 * (0 - fighter2.odds)));
+        say(fighter1.name + "(loser) new rating: " + fighter1.elo);
+        say(fighter2.name + "(winner) new rating: " + fighter2.elo);
     }
-    say(fighter1.name + " new rating: " + fighter1.elo);
-    say(fighter2.name + " new rating: " + fighter2.elo);
+
 
     // Remove temporarily stored data
     delete fighter1.odds;
