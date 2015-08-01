@@ -188,8 +188,9 @@ function get_fighter(fighter_name) {
 // 1 - this number is chance fighter 2 will win
 function get_odds(fighter1, fighter2) {
     //Ea = 1/(1 + 10 ^ ((Rb-Ra) / 400) )
-    fighter1.odds =  1/(1 + Math.pow(10,(Math.abs(fighter2.elo - fighter1.elo) / 400)));
-    fighter2.odds = 1 - fighter1.odds;
+    //Eb = 1/(1 + 10 ^ ((Ra-Rb) / 400) )
+    fighter1.odds =  1/(1 + Math.pow(10,((fighter2.elo - fighter1.elo) / 400)));
+    fighter2.odds =  1/(1 + Math.pow(10,((fighter1.elo - fighter2.elo) / 400)));
     return;
 }
 
@@ -247,13 +248,12 @@ function place_bet(fighter1, fighter2) {
         fighter2.bets_made++
     }
     else {
-        say("I don't know enough about these fighters to make a good bet.");
-        say("Betting randomly");
+        say("These players have about even odds.  Betting randomly");
         if ($('#tournament-note').length && $('#tournament-note').is(":visible")) {
             $('#interval10').click();
         }
         else {
-            $('#interval1').click();
+            $('#wager').val(1);
         }
 
         var lucky = Math.floor((Math.random() * 2) + 1);
