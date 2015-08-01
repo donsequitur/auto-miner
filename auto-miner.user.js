@@ -10,13 +10,13 @@
 // @require      https://code.jquery.com/jquery-2.1.4.js
 // @require      https://rawgit.com/knadh/localStorageDB/v2.3.1/localstoragedb.js
 // @require      http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js
-// @resource     http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css
+// @resource     toastr_css http://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css
 // @grant        GM_addStyle
 // @grant        GM_getResourceText
 // ==/UserScript==
 
-var jqUI_CssSrc = GM_getResourceText("jqUI_CSS");
-GM_addStyle(jqUI_CssSrc);
+var toastr_css = GM_getResourceText("toastr_css");
+GM_addStyle(toastr_css);
 
 
 toastr.options = {
@@ -254,17 +254,17 @@ function place_bet(fighter1, fighter2) {
     }
     meta.bets_made++;
 
-    // Just a safety
-    if (wager > balance) {
-        wager = balance;
-    }
-
     // Go all-in on tournament mode since money resets each round
     if ($('#tournament-note').length && $('#tournament-note').is(":visible")) {
         say("Tournament mode!");
         if (wager < 1550) {
-            wager = balance;
+            wager = wager + 1550;
         }
+    }
+
+    // Just a safety
+    if (wager > balance) {
+        wager = balance;
     }
 
     $('#wager').val(wager);
