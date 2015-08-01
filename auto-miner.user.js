@@ -229,44 +229,46 @@ function store_results(fighter1, fighter2, winner) {
 }
 
 function place_bet(fighter1, fighter2) {
-    var difference = Math.abs(fighter1.odds - fighter2.odds) * 80;
-    var nudge = 10; // roughly; minimum bet
-    var interval = Math.floor((difference + nudge) / 10);
-
-    // Go all-in on tournament mode since money resets each round
-    if ($('#tournament-note').length && $('#tournament-note').is(":visible")) {
-        say("Tournament mode! All In!");
-        interval = 10;
-    }
+    var balance = parseInt($('#balance').text().replace(/\,/,''));
+    var difference = Math.abs(fighter1.odds - fighter2.odds);
+    var wager = Math.floor((balance * difference) + 1);
+    var favorite = 1;
 
     if (fighter1.odds > fighter2.odds) {
         say("I think " + fighter1.name + " will win with a " + (Math.round(fighter1.odds * 10000) / 100) + "% probability");
-        say("Betting " + interval + "0% on " + fighter1.name);
-        $('#interval' + interval).click();
-        $('#player1').click();
+        say("Betting $" + wager + " on " + fighter1.name);
+        favorite = 1;
         fighter1.bets_made++
     }
     else if (fighter2.odds > fighter1.odds) {
         say("I think " + fighter2.name + " will win with a " + (Math.round(fighter2.odds * 10000) / 100) + "% probability");
-        say("Betting " + interval + "0% on " + fighter2.name);
-        $('#interval' + interval).click();
-        $('#player2').click();
+        say("Betting $" + wager + " on " + fighter2.name);
+        favorite = 2;
         fighter2.bets_made++
     }
     else {
         say("These players have about even odds.  Betting randomly");
-        if ($('#tournament-note').length && $('#tournament-note').is(":visible")) {
-            $('#interval10').click();
-        }
-        else {
-            $('#wager').val(1);
-        }
-
+        wager = 1;
         var lucky = Math.floor((Math.random() * 2) + 1);
-        $('#player' + lucky).click();
+        favorite = lucky;
     }
     meta.bets_made++;
 
+    // Just a safety
+    if (wager > balance) {
+        wager = balance;
+    }
+
+    // Go all-in on tournament mode since money resets each round
+    if ($('#tournament-note').length && $('#tournament-note').is(":visible")) {
+        say("Tournament mode!");
+        if (wager < 1550) {
+            wager = balance;
+        }
+    }
+
+    $('#wager').val(wager);
+    $('#player' + favorite).click();
 }
 
 function refresh_meta() {
