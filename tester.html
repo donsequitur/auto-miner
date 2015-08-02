@@ -1,7 +1,6 @@
 <html>
     <head>
         <title>Test shell for script</title>
-        <link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet"/>
     </head>
     <body>
         <h1>Go!</h1>
@@ -9,25 +8,40 @@
         <p>Bets are OPEN!</p>
         <p>Igniz scarlet wins! Payouts to Team Red.</p>
         <p>Bets are locked until the next match.</p>
+        <div id="balance">12,345</div>
         <span id="odds" class="dynamic-view" style="display: inline;"><span class="redtext">Ryuko2nd </span> $287,225&nbsp;<span class="bluetext">&nbsp;Koakuma_ac </span> $560,862</span>
+        <br/>
         <input id="player1" name="player1" type="submit" value="Ryuko2nd" class="betbuttonred">
         <input id="player2" name="player2" type="submit" value="Koakuma_ac" class="betbuttonblue">
-        <script type="text/javascript" src="https://code.jquery.com/jquery-1.11.3.js"></script>
-        <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+        
+        <br/>
+        <div id="sbettorswrapper" class="sidebar-view" style="width: 300px; display: block; background-color: gray;">
+            <div id="sbettors1" style="width: 139px; display: block; background-color: red;">p1 bets</div>
+            <div id="sbettors2" style="width: 139px; display: block; background-color: blue;">ps bets</div>
+        </div>
+        
+        <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.4.js"></script>
         <script type="text/javascript" src="https://rawgit.com/knadh/localStorageDB/v2.3.1/localstoragedb.js"></script>
 
-        <script type="text/javascript">
-            function GM_addStyle() {
-                //stub
-            }
 
+        <script type="text/javascript">
             function GM_getResourceText() {
                 //stub
+            }
+            
+            function GM_addStyle(css) {
+                var head, style;
+                head = document.getElementsByTagName('head')[0];
+                if (!head) { return; }
+                style = document.createElement('style');
+                style.type = 'text/css';
+                style.innerHTML = css;
+                head.appendChild(style);
             }
         </script>
 
         <script type="text/javascript" src="https://auto-miner-donsequitur.c9.io/auto-miner.user.js"></script>
-        <!--<iframe id="iframe" style="width: 100%; height: 70%;" src="https://saltybet.com"></iframe>-->
+
 
     </body>
 </html>

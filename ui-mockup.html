@@ -1,0 +1,151 @@
+<html>
+<head>
+
+<style type="text/css">
+    @import url(//fonts.googleapis.com/css?family=Open+Sans+Condensed:300);
+td {  
+        color:#000;
+        -webkit-transition: background 0.5s linear;
+        -moz-transition: background 0.5s linear;
+        -ms-transition: background 0.5s linear;
+        -o-transition: background 0.5s linear;
+        transition: background 0.5s linear;
+}
+/*td:hover { background-color: #d1d1d1; color:#fff;  }*/
+
+    #auto-miner-ui * {
+        font-family: "Open Sans Condensed", sans-serif;
+    }
+    #auto-miner-ui  {
+        padding: 0;
+        margin: 0;
+    }
+    #auto-miner-ui h1 {
+        padding: 0;
+        margin: 0;
+    }
+    #auto-miner-ui h2 {
+        padding: 0;
+        margin: 0;
+    }
+    #auto-miner-ui h3 {
+        padding: 0;
+        margin: 0;
+    }
+    #auto-miner-ui table {
+        border-collapse: collapse;
+    }
+    #auto-miner-ui th {
+        text-align: left;
+    }
+    #auto-miner-ui td {
+        white-space: nowrap;
+        padding-right: 10px;
+    }
+    #auto-miner-ui .small_header {
+        vertical-align: bottom;
+    }
+    #auto-miner-ui .header_bar th {
+        border-bottom: 1px solid black;
+    }
+</style>
+</head>
+<body>
+<div id="sbettorswrapper" class="sidebar-view" style="width: 280px; display: block; ">
+    <div id="auto-miner-ui" >
+        <h1>Auto Miner</h1>
+        <table id="global-stats">
+                <tr class="header_bar">
+                    <th>
+                        <h2>Global Stats</h2>
+                    </th>
+                    <th class="small_header">Total</th>
+                    <th class="small_header">Session</th>
+                </tr>            
+                <tr>
+                    <th width="100%">Fighters seen</th>
+                    <td><span id="fighters_seen">1500</span></td>
+                    <td><span id="fighters_seen_this_session">67</span> (<span id="new_fighters_seen_this_session">7</span> new)</td>
+                </tr>
+                <tr>
+                    <th>Matches seen</th>
+                    <td><span id="matches_seen">89</span></td>
+                    <td><span id="matches_seen_this_session">4</span></td>
+                </tr>
+                <tr>
+                    <th>Bets made</th>
+                    <td><span id="bets_made">80</span> (<span id="real_bets_made">55</span> real)</td>
+                    <td><span id="bets_made_this_session">80</span> (<span id="real_bets_made_this_session">80</span> real)</td>
+                </tr>
+                <tr>
+                    <th>Bets won</th>
+                    <td><span id="bets_won">48</span> (<span id="bets_won_percent">59</span>%)</td>
+                    <td><span id="bets_won_this_session">8</span> (<span id="bets_won_this_session_percent">76</span>%)</td>
+                </tr>
+                <tr>
+                    <th>Amount wagered</th>
+                    <td>$<span id="amount_wagered">48,496</span></td>
+                    <td>$<span id="amount_wagered_this_session">486</span></td>
+                </tr>
+                <tr>
+                    <th>Amount won</th>
+                    <td>$<span id="amount_won">99,221</span></td>
+                    <td>$<span id="amount_won_this_session">-486</span></td>
+                </tr>
+                <tr class="header_bar">
+                    <th  colspan="3">
+                        <h2>Last Fight</h2>
+                    </th>
+                </tr>
+                <tr>
+                    <th colspan="3">
+                        <span id="f1_old_name">Ken EX3</span> v.s. <span id="f2_old_name">Omega RyuToo</span>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Us</th>
+                    <th>Fighter 1</th>
+                    <th>Fighter 2</th>
+                </tr>
+                <tr>
+                    <td>Odds</td>
+                    <td><span id="f1_old_odds">59.02</span>%</td>
+                    <td><span id="f2_old_odds">40.98</span>%</td>
+                </tr>
+                <tr>
+                    <td>Wagered</td>
+                    <td>$<span id="f1_old_wagered">653</span></td>
+                    <td>$<span id="f2_old_wagered">0</span></td>
+                </tr>
+                <tr>
+                    <td>Streak</td>
+                    <td><span id="f1_old_comm_wagered">-1</span></td>
+                    <td><span id="f2_old_comm_wagered">5</span></td>
+                </tr>
+                <tr>
+                    <th>Community</th>
+                    <th>Fighter 1</th>
+                    <th>Fighter 2</th>
+                </tr>
+                <tr>
+                    <td>Odds</td>
+                    <td><span id="f1_old_odds">85</span>%</td>
+                    <td><span id="f2_old_odds">15</span>%</td>
+                </tr>
+                <tr>
+                    <td>Wagered</td>
+                    <td>$<span id="f1_old_comm_wagered">653</span></td>
+                    <td>$<span id="f2_old_comm_wagered">6,789,423</span></td>
+                </tr>
+                <tr>
+                    <th colspan="3">
+                        
+                    </th>
+                </tr>  
+        </table>
+    </div>
+    <div id="sbettors1" style="width: 139px; display: block; background-color: red;">p1 bets</div>
+    <div id="sbettors2" style="width: 139px; display: block; background-color: blue;">ps bets</div>
+</div>
+</body>
+</html>
