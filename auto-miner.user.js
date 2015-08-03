@@ -49,7 +49,8 @@ if( db.isNew() ) {
     db.commit();
 }
 
-
+say('WTF!');
+purge_teams();
 add_ui();
 var start_time = new Date();
 updateUI('start_time', start_time.toLocaleString());
@@ -215,19 +216,33 @@ function store_results(fighter1, fighter2, winner) {
     delete fighter2.odds;
 
     if (state.favorite == state.winner) {
+        var patt = /\+\$([\d\,]+)/;
+        var winnings = 0;
+
+        if ($('#lastbet').length) {
+            console.log($('#lastbet'));
+            var lastbet = $('#lastbet').text();
+            console.log(lastbet);
+            var matches = lastbet.match(patt);
+
+            if (matches) {
+                console.log(matches);
+                console.log(matches[1]);
+                winnings = parseInt(matches[1].replace(/\,/g,''));
+            }
+        }
+
         updateUI('bets_won', state.bets_won + 1);
         updateUI('bets_won_percent', Math.round((state.bets_won / state.bets_made) * 100));
         updateUI('bets_won_this_session', state.bets_won_this_session + 1);
         updateUI('bets_won_percent_this_session', Math.round((state.bets_won_this_session / state.bets_made_this_session) * 100));
-        updateUI('amount_won', state.amount_won + state.amount_wagered);
-        updateUI('amount_won_this_session', state.amount_won_this_session + state.amount_wagered_this_session);
+        updateUI('amount_won', state.amount_won + winnings);
+        updateUI('amount_won_this_session', state.amount_won_this_session + winnings);
     }
     else {
         updateUI('amount_won', state.amount_won - state.amount_wagered);
         updateUI('amount_won_this_session', state.amount_won_this_session - state.amount_wagered_this_session);
     }
-    updateUI('matches_seen', state.matches_seen + 1);
-    updateUI('matches_seen_this_session', state.matches_seen_this_session + 1);
 
 
     db.insertOrUpdate("Fighter", {ID: fighter1.ID}, fighter1);
@@ -261,8 +276,12 @@ function place_bet(fighter1, fighter2) {
         favorite = lucky;
     }
 
+    updateUI('matches_seen', state.matches_seen + 1);
+    updateUI('matches_seen_this_session', state.matches_seen_this_session + 1);
     updateUI('bets_made', state.bets_made + 1);
     updateUI('bets_made_this_session', state.bets_made_this_session + 1);
+    updateUI('bets_won_percent', Math.round((state.bets_won / state.bets_made) * 100));
+    updateUI('bets_won_percent_this_session', Math.round((state.bets_won_this_session / state.bets_made_this_session) * 100));
     updateUI('favorite', favorite);
 
     // Go all-in on tournament mode since money resets each round
@@ -353,17 +372,17 @@ function updateUI(item, val) {
     // save to storage
     localStorage.setItem('state', JSON.stringify(state));
 
-    say("Received update " + item + " to " + val);
+    //say("Received update " + item + " to " + val);
 
     // change corresponding UI item
     $('#' + item).html(val);
 
     if (old !== val) {
-        say("Updated " + item + " from " + old + " to " + val);
+        //say("Updated " + item + " from " + old + " to " + val);
         // flash item if changed;
     }
     else {
-        say("No change needed.");
+        //say("No change needed.");
     }
 }
 
@@ -504,4 +523,19 @@ function add_ui() {
     </div>\
     ';
     $('#sbettorswrapper').prepend(html);
+}
+
+function purge_teams() {
+    say(db.rowCount("Fighter"));
+    // delete all books published before 2005
+    db.deleteRows("Fighter", function(row) {
+        if(/^Team /i.test(row.name)) {
+            console.log("Removed " + row.name);
+            return true;
+        } else {
+            return false;
+        }
+        return false;
+    });
+    say(db.rowCount("Fighter"));
 }
