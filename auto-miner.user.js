@@ -49,7 +49,6 @@ if( db.isNew() ) {
     db.commit();
 }
 
-say('WTF!');
 purge_teams();
 add_ui();
 var start_time = new Date();
@@ -241,7 +240,7 @@ function store_results(fighter1, fighter2, winner) {
     }
     else {
         updateUI('amount_won', state.amount_won - state.amount_wagered);
-        updateUI('amount_won_this_session', state.amount_won_this_session - state.amount_wagered_this_session);
+        updateUI('amount_won_this_session', state.amount_won_this_session - state.wager);
     }
 
 
@@ -254,7 +253,43 @@ function store_results(fighter1, fighter2, winner) {
 function place_bet(fighter1, fighter2) {
     var balance = parseInt($('#balance').text().replace(/\,/,''));
     var difference = Math.abs(fighter1.odds - fighter2.odds);
+    var bailout = 550;
+    var footer_alert = $('#footer-alert').text();
+    state.mode = 'Matchmaking';;
+
+    //$('#footer-alert')
+
+    //Final Tourney
+    //FINAL ROUND! Stay tuned for exhibitions after the tournament!
+
+    if (/Exhibition mode start!/.test(footer_alert)) {
+        state.mode = 'Exhibition';
+    }
+
+    if (/\d+ exhibition matches left!/.test(footer_alert)) {
+        state.mode = 'Exhibition';
+    }
+    //Exhib start
+    //Exhibition mode start!
+
+    //mid-exhib
+    //22 exhibition matches left!
+
+    // mid-matchmaking
+    //100 more matches until the next tournament!
+
+    if ($('#tournament-note').length && $('#tournament-note').is(":visible")) {
+        say("Tournament mode!");
+        state.mode = 'Tournament';
+        // exagerate odds
+        difference = difference * 3;
+        //increase bailout
+        bailout = bailout + 1000;
+    }
+
+
     var wager = Math.floor((balance * difference) + 1);
+    state.wager = wager;
     var favorite = 1;
 
     if (fighter1.odds > fighter2.odds) {
@@ -276,20 +311,16 @@ function place_bet(fighter1, fighter2) {
         favorite = lucky;
     }
 
-    updateUI('matches_seen', state.matches_seen + 1);
-    updateUI('matches_seen_this_session', state.matches_seen_this_session + 1);
-    updateUI('bets_made', state.bets_made + 1);
-    updateUI('bets_made_this_session', state.bets_made_this_session + 1);
-    updateUI('bets_won_percent', Math.round((state.bets_won / state.bets_made) * 100));
-    updateUI('bets_won_percent_this_session', Math.round((state.bets_won_this_session / state.bets_made_this_session) * 100));
-    updateUI('favorite', favorite);
+    if (state.mode == 'Exhibition') {
+        wager = 1;
+    }
 
-    // Go all-in on tournament mode since money resets each round
-    if ($('#tournament-note').length && $('#tournament-note').is(":visible")) {
-        say("Tournament mode!");
-        if (wager < 1550) {
-            wager = wager + 1550;
-        }
+    // Ex. you have 3k, bailout is 1.5k.
+    // Cosidering an original bet of 1501
+    // If you win: the winnings would be higher if you had instead betted 3000
+    // If you lose, you'll end up with 1.5k wether you bet 1501 or 3000;
+    if ((balance - wager) < bailout) {
+        wager = balance;
     }
 
     // Just a safety
@@ -297,6 +328,13 @@ function place_bet(fighter1, fighter2) {
         wager = balance;
     }
 
+    updateUI('matches_seen', state.matches_seen + 1);
+    updateUI('matches_seen_this_session', state.matches_seen_this_session + 1);
+    updateUI('bets_made', state.bets_made + 1);
+    updateUI('bets_made_this_session', state.bets_made_this_session + 1);
+    updateUI('bets_won_percent', Math.round((state.bets_won / state.bets_made) * 100));
+    updateUI('bets_won_percent_this_session', Math.round((state.bets_won_this_session / state.bets_made_this_session) * 100));
+    updateUI('favorite', favorite);
     updateUI('amount_wagered', state.amount_wagered + wager);
     updateUI('amount_wagered_this_session', state.amount_wagered_this_session + wager);
 
@@ -537,5 +575,6 @@ function purge_teams() {
         }
         return false;
     });
+    db.commit();
     say(db.rowCount("Fighter"));
 }
